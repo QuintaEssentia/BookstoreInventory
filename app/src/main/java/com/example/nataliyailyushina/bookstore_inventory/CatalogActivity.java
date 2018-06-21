@@ -81,7 +81,7 @@ public class CatalogActivity extends AppCompatActivity {
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
         //Cursor cursor = db.rawQuery("SELECT * FROM " + PetEntry.TABLE_NAME, null);
-        TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+        TextView displayView = (TextView) findViewById(R.id.text_view_book);
 
         try {
             // Create a header in the Text View that looks like this:
@@ -91,7 +91,7 @@ public class CatalogActivity extends AppCompatActivity {
             //
             // In the while loop below, iterate through the rows of the cursor and display
             // the information from each column in this order.
-            displayView.setText("The books table contains " + cursor.getCount() + " pets.\n\n");
+            displayView.setText("The books table contains " + cursor.getCount() + " books.\n\n");
             displayView.append(BookEntry._ID + " - " +
                     BookEntry.COLUMN_BOOK_NAME + " - " + BookEntry.COLUMN_BOOK_PRICE +
                     " - " + BookEntry.COLUMN_BOOK_QUANTITY +" - " + BookEntry.COLUMN_SUPPLIER_NAME + " - " + BookEntry.COLUMN_SUPPLIER_PHONE + "\n");
