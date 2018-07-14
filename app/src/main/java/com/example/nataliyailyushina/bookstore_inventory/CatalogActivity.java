@@ -60,7 +60,7 @@ public class CatalogActivity extends AppCompatActivity {
         BookDbHelper mDbHelper = new BookDbHelper(this);
 
         // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+       // SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
                 BookEntry._ID,
@@ -71,13 +71,15 @@ public class CatalogActivity extends AppCompatActivity {
                 BookEntry.COLUMN_SUPPLIER_PHONE
         };
 
-        Cursor cursor = db.query (BookEntry.TABLE_NAME,
+      /**  Cursor cursor = db.query (BookEntry.TABLE_NAME,
                 projection,
                 null,
                 null,
                 null,
                 null,
-                null);
+                null);*/
+
+      Cursor cursor = getContentResolver().query(,projection,null,null,null);
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
         //Cursor cursor = db.rawQuery("SELECT * FROM " + PetEntry.TABLE_NAME, null);
