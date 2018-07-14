@@ -1,5 +1,6 @@
 package com.example.nataliyailyushina.bookstore_inventory;
 
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -38,7 +39,7 @@ public class EditActivity extends AppCompatActivity {
         mEditSupPhone = findViewById(R.id.edit_supplier_phone);
     }
 
-    private void insertPet(){
+    private void insertBook(){
         String nameString = mEditName.getText().toString().trim();
         String priceString = mEditPrice.getText().toString().trim();
         String quantityString = mEditQuantity.getText().toString().trim();
@@ -56,14 +57,14 @@ public class EditActivity extends AppCompatActivity {
         values.put(BookEntry.COLUMN_BOOK_QUANTITY, quantity);
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, supNameString);
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE, supPhoneString);
+        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI,values);
 
-        long newRowId = db.insert(BookEntry.TABLE_NAME, null, values);
-        if (newRowId == -1) {
+          if (newUri == null) {
             // If the row ID is -1, then there was an error with insertion.
             Toast.makeText(this, "Error with saving book", Toast.LENGTH_SHORT).show();
         } else {
             // Otherwise, the insertion was successful and we can display a toast with the row ID.
-            Toast.makeText(this, "Book saved with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Book saved ", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -81,7 +82,7 @@ public class EditActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                insertPet();
+                insertBook();
                 finish();
                 // Do nothing for now
                 return true;

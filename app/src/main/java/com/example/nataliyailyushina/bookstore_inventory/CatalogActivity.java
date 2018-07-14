@@ -1,5 +1,6 @@
 package com.example.nataliyailyushina.bookstore_inventory;
 
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.ContentValues;
@@ -18,6 +19,8 @@ import com.example.nataliyailyushina.bookstore_inventory.data.BookDbHelper;
 public class CatalogActivity extends AppCompatActivity {
 
     private BookDbHelper mDbHelper;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,14 +35,15 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        mDbHelper = new BookDbHelper(this);
+       // mDbHelper = new BookDbHelper(this);
     }
     @Override
     protected void onStart(){
         super.onStart();
+        displayDatabaseInfo();
     }
-    private void insertpet(){
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    private void insertbook(){
+        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(BookEntry.COLUMN_BOOK_NAME, "The Lord of the Rings");
         values.put(BookEntry.COLUMN_BOOK_PRICE, "30$");
@@ -47,17 +51,18 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, "Waterstones");
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE, "89099219581");
 
-        long newRowId = db.insert(BookEntry.TABLE_NAME, null, values);
+        //long newRowId = db.insert(BookEntry.TABLE_NAME, null, values);
+        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI,values);
 
 //        Log.v("CatalogActivity", "New row ID" + newRowId);
-        displayDatabaseInfo();
+ //  displayDatabaseInfo();
 
     }
 
     private void displayDatabaseInfo() {
         // To access our database, we instantiate our subclass of SQLiteOpenHelper
         // and pass the context, which is the current activity.
-        BookDbHelper mDbHelper = new BookDbHelper(this);
+       // BookDbHelper mDbHelper = new BookDbHelper(this);
 
         // Create and/or open a database to read from it
        // SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -79,7 +84,11 @@ public class CatalogActivity extends AppCompatActivity {
                 null,
                 null);*/
 
-      Cursor cursor = getContentResolver().query(,projection,null,null,null);
+      Cursor cursor = getContentResolver().query(BookEntry.CONTENT_URI,
+              projection,
+              null,
+              null,
+              null);
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
         //Cursor cursor = db.rawQuery("SELECT * FROM " + PetEntry.TABLE_NAME, null);
@@ -141,7 +150,7 @@ public class CatalogActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
-                insertpet();
+                insertbook();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
