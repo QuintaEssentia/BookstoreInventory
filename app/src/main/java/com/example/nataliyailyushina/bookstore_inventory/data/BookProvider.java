@@ -80,7 +80,16 @@ public class BookProvider extends ContentProvider {
     }
 
     private Uri insertBook(Uri uri, ContentValues values){
-    SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+        String name = values.getAsString(BookContract.BookEntry.COLUMN_BOOK_NAME);
+        if (name == null){
+            throw new IllegalArgumentException("Book requires a name");
+        }
+        Integer price = values.getAsInteger(BookContract.BookEntry.COLUMN_BOOK_PRICE);
+        if (price != null && price < 0){
+            throw new IllegalArgumentException("Book requires a price");
+        }
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
     long id = database.insert(BookContract.BookEntry.TABLE_NAME, null, values);
     if (id == -1){
         Log.e(LOG_TAG, "Failed to insert row for" + uri);
