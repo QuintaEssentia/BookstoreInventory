@@ -102,7 +102,37 @@ public class BookProvider extends ContentProvider {
      */
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
-        return 0;
+        final int match = sUsiMatcher.match(uri);
+        switch (match){
+            case BOOKS:
+                return updateBook(uri, contentValues,selection,selectionArgs);
+            case BOOK_ID:
+                selection = BookContract.BookEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return updateBook(uri, contentValues,selection,selectionArgs);
+                default:
+                    throw new IllegalArgumentException("Update is not supported for " + uri );
+        }
+    }
+
+    private int updateBook(Uri uri, ContentValues values, String selection, String[] selectionArgs){
+        if (values.containsKey(BookContract.BookEntry.COLUMN_BOOK_NAME)) {
+            String name = values.getAsString(BookContract.BookEntry.COLUMN_BOOK_NAME);
+            if (name == null) {
+                throw new IllegalArgumentException("Book requires a name");
+            }
+        }
+
+        if (values.containsKey(BookContract.BookEntry.COLUMN_BOOK_PRICE)) {
+            Integer price = values.getAsInteger(BookContract.BookEntry.COLUMN_BOOK_PRICE);
+            if (price != null && price < 0) {
+                throw new IllegalArgumentException("Book requires a price");
+            }
+        }
+        if (values.size() == 0){
+        return 0;}
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        return database.update(BookContract.BookEntry.TABLE_NAME, values, selection, selectionArgs);
     }
 
     /**
@@ -110,7 +140,20 @@ public class BookProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+       SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+       final int match = sUsiMatcher.match(uri);
+       switch (match){
+           case BOOKS:
+               return database.delete(BookContract.BookEntry.TABLE_NAME, selection, selectionArgs);
+           case BOOK_ID:
+               selection = BookContract.BookEntry._ID + "=?";
+               selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+               return database.delete(BookContract.BookEntry.TABLE_NAME,selection,selectionArgs);
+               default:
+                   throw new IllegalArgumentException("Deletion is not suuported for " + uri);
+       }
+        
     }
 
     /**
