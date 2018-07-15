@@ -76,7 +76,6 @@ public class BookProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Insertion is not supported for" + uri);
         }
-        //return null;
     }
 
     private Uri insertBook(Uri uri, ContentValues values){

@@ -35,7 +35,6 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-       // mDbHelper = new BookDbHelper(this);
     }
     @Override
     protected void onStart(){
@@ -43,7 +42,6 @@ public class CatalogActivity extends AppCompatActivity {
         displayDatabaseInfo();
     }
     private void insertbook(){
-        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(BookEntry.COLUMN_BOOK_NAME, "The Lord of the Rings");
         values.put(BookEntry.COLUMN_BOOK_PRICE, "30$");
@@ -51,21 +49,11 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, "Waterstones");
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE, "89099219581");
 
-        //long newRowId = db.insert(BookEntry.TABLE_NAME, null, values);
         Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI,values);
-
-//        Log.v("CatalogActivity", "New row ID" + newRowId);
- //  displayDatabaseInfo();
 
     }
 
     private void displayDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-       // BookDbHelper mDbHelper = new BookDbHelper(this);
-
-        // Create and/or open a database to read from it
-       // SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
                 BookEntry._ID,
@@ -76,13 +64,6 @@ public class CatalogActivity extends AppCompatActivity {
                 BookEntry.COLUMN_SUPPLIER_PHONE
         };
 
-      /**  Cursor cursor = db.query (BookEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null);*/
 
       Cursor cursor = getContentResolver().query(BookEntry.CONTENT_URI,
               projection,
@@ -91,7 +72,6 @@ public class CatalogActivity extends AppCompatActivity {
               null);
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
-        //Cursor cursor = db.rawQuery("SELECT * FROM " + PetEntry.TABLE_NAME, null);
         TextView displayView = (TextView) findViewById(R.id.text_view_book);
 
         try {
