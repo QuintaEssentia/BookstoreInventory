@@ -151,9 +151,9 @@ public class BookProvider extends ContentProvider {
                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                return database.delete(BookContract.BookEntry.TABLE_NAME,selection,selectionArgs);
                default:
-                   throw new IllegalArgumentException("Deletion is not suuported for " + uri);
+                   throw new IllegalArgumentException("Deletion is not supported for " + uri);
        }
-        
+
     }
 
     /**
@@ -161,6 +161,14 @@ public class BookProvider extends ContentProvider {
      */
     @Override
     public String getType(Uri uri) {
-        return null;
+        final int match = sUsiMatcher.match(uri);
+        switch (match){
+            case BOOKS:
+                return BookContract.BookEntry.CONTENT_LIST_TYPE;
+            case BOOK_ID:
+                return BookContract.BookEntry.CONTENT_ITEM_TYPE;
+                default:
+                    throw new IllegalArgumentException("Unknown URI" + uri + " with match" + match);
+        }
     }
 }
