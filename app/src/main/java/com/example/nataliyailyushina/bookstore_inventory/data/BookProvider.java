@@ -14,9 +14,13 @@ import android.util.Log;
  */
 public class BookProvider extends ContentProvider {
 
-    /** Tag for the log messages */
+    /**
+     * Tag for the log messages
+     */
     public static final String LOG_TAG = BookProvider.class.getSimpleName();
-    /**Database helper object*/
+    /**
+     * Database helper object
+     */
     private BookDbHelper mDbHelper;
 
     private static final int BOOKS = 100;
@@ -28,6 +32,7 @@ public class BookProvider extends ContentProvider {
         sUsiMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS, BOOKS);
         sUsiMatcher.addURI(BookContract.CONTENT_AUTHORITY, BookContract.PATH_BOOKS + "/#", BOOK_ID);
     }
+
     /**
      * Initialize the provider and the database helper object.
      */
@@ -47,9 +52,9 @@ public class BookProvider extends ContentProvider {
         Cursor cursor;
 
         int match = sUsiMatcher.match(uri);
-        switch (match){
+        switch (match) {
             case BOOKS:
-                cursor = database.query(BookContract.BookEntry.TABLE_NAME, projection,selection,selectionArgs, null, null, sortOrder);
+                cursor = database.query(BookContract.BookEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
 
             case BOOK_ID:
@@ -58,8 +63,8 @@ public class BookProvider extends ContentProvider {
                 cursor = database.query(BookContract.BookEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
 
-                default:
-                    throw new IllegalArgumentException("Cannot query unknown URI " + uri);
+            default:
+                throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
         return cursor;
     }
@@ -70,7 +75,7 @@ public class BookProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
         final int match = sUsiMatcher.match(uri);
-        switch (match){
+        switch (match) {
             case BOOKS:
                 return insertBook(uri, contentValues);
             default:
@@ -78,43 +83,44 @@ public class BookProvider extends ContentProvider {
         }
     }
 
-    private Uri insertBook(Uri uri, ContentValues values){
+    private Uri insertBook(Uri uri, ContentValues values) {
 
         String name = values.getAsString(BookContract.BookEntry.COLUMN_BOOK_NAME);
-        if (name == null){
+        if (name == null) {
             throw new IllegalArgumentException("Book requires a name");
         }
         Integer price = values.getAsInteger(BookContract.BookEntry.COLUMN_BOOK_PRICE);
-        if (price != null && price < 0){
+        if (price != null && price < 0) {
             throw new IllegalArgumentException("Book requires a price");
         }
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-    long id = database.insert(BookContract.BookEntry.TABLE_NAME, null, values);
-    if (id == -1){
-        Log.e(LOG_TAG, "Failed to insert row for" + uri);
-        return null;
+        long id = database.insert(BookContract.BookEntry.TABLE_NAME, null, values);
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for" + uri);
+            return null;
+        }
+        return ContentUris.withAppendedId(uri, id);
     }
-        return ContentUris.withAppendedId(uri,id);
-    }
+
     /**
      * Updates the data at the given selection and selection arguments, with the new ContentValues.
      */
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
         final int match = sUsiMatcher.match(uri);
-        switch (match){
+        switch (match) {
             case BOOKS:
-                return updateBook(uri, contentValues,selection,selectionArgs);
+                return updateBook(uri, contentValues, selection, selectionArgs);
             case BOOK_ID:
                 selection = BookContract.BookEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return updateBook(uri, contentValues,selection,selectionArgs);
-                default:
-                    throw new IllegalArgumentException("Update is not supported for " + uri );
+                return updateBook(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for " + uri);
         }
     }
 
-    private int updateBook(Uri uri, ContentValues values, String selection, String[] selectionArgs){
+    private int updateBook(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         if (values.containsKey(BookContract.BookEntry.COLUMN_BOOK_NAME)) {
             String name = values.getAsString(BookContract.BookEntry.COLUMN_BOOK_NAME);
             if (name == null) {
@@ -128,8 +134,9 @@ public class BookProvider extends ContentProvider {
                 throw new IllegalArgumentException("Book requires a price");
             }
         }
-        if (values.size() == 0){
-        return 0;}
+        if (values.size() == 0) {
+            return 0;
+        }
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         return database.update(BookContract.BookEntry.TABLE_NAME, values, selection, selectionArgs);
     }
@@ -139,19 +146,19 @@ public class BookProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-       SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
-       final int match = sUsiMatcher.match(uri);
-       switch (match){
-           case BOOKS:
-               return database.delete(BookContract.BookEntry.TABLE_NAME, selection, selectionArgs);
-           case BOOK_ID:
-               selection = BookContract.BookEntry._ID + "=?";
-               selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-               return database.delete(BookContract.BookEntry.TABLE_NAME,selection,selectionArgs);
-               default:
-                   throw new IllegalArgumentException("Deletion is not supported for " + uri);
-       }
+        final int match = sUsiMatcher.match(uri);
+        switch (match) {
+            case BOOKS:
+                return database.delete(BookContract.BookEntry.TABLE_NAME, selection, selectionArgs);
+            case BOOK_ID:
+                selection = BookContract.BookEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return database.delete(BookContract.BookEntry.TABLE_NAME, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+        }
 
     }
 
@@ -161,13 +168,13 @@ public class BookProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         final int match = sUsiMatcher.match(uri);
-        switch (match){
+        switch (match) {
             case BOOKS:
                 return BookContract.BookEntry.CONTENT_LIST_TYPE;
             case BOOK_ID:
                 return BookContract.BookEntry.CONTENT_ITEM_TYPE;
-                default:
-                    throw new IllegalArgumentException("Unknown URI" + uri + " with match" + match);
+            default:
+                throw new IllegalArgumentException("Unknown URI" + uri + " with match" + match);
         }
     }
 }

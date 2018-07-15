@@ -14,8 +14,9 @@ public class BookDbHelper extends SQLiteOpenHelper {
     public BookDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-        @Override
-        public void onCreate(SQLiteDatabase db) {
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
         String SQL_CREATE_BOOKS_TABLE = "CREATE TABLE " + BookEntry.TABLE_NAME + "("
                 + BookEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + BookEntry.COLUMN_BOOK_NAME + " TEXT NOT NULL, "
@@ -26,8 +27,8 @@ public class BookDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_BOOKS_TABLE);
     }
 
-        @Override
-        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
 
     }
 }

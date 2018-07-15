@@ -39,7 +39,7 @@ public class EditActivity extends AppCompatActivity {
         mEditSupPhone = findViewById(R.id.edit_supplier_phone);
     }
 
-    private void insertBook(){
+    private void insertBook() {
         String nameString = mEditName.getText().toString().trim();
         String priceString = mEditPrice.getText().toString().trim();
         String quantityString = mEditQuantity.getText().toString().trim();
@@ -57,9 +57,9 @@ public class EditActivity extends AppCompatActivity {
         values.put(BookEntry.COLUMN_BOOK_QUANTITY, quantity);
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, supNameString);
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE, supPhoneString);
-        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI,values);
+        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI, values);
 
-          if (newUri == null) {
+        if (newUri == null) {
             // If the row ID is -1, then there was an error with insertion.
             Toast.makeText(this, "Error with saving book", Toast.LENGTH_SHORT).show();
         } else {
