@@ -38,5 +38,6 @@
 
     <string name="hint_supplier_phone">Supplier phone number</string>
 
+    <string name="empty_view_title_text">Add some books to the shelf</string>
 
 </resources>
