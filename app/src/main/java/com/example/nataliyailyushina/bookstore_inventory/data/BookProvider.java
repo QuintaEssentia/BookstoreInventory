@@ -66,6 +66,7 @@ public class BookProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -99,6 +100,8 @@ public class BookProvider extends ContentProvider {
             Log.e(LOG_TAG, "Failed to insert row for" + uri);
             return null;
         }
+
+        getContext().getContentResolver().notifyChange(uri,null);
         return ContentUris.withAppendedId(uri, id);
     }
 
@@ -138,7 +141,13 @@ public class BookProvider extends ContentProvider {
             return 0;
         }
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
-        return database.update(BookContract.BookEntry.TABLE_NAME, values, selection, selectionArgs);
+
+        int rowsUpdated = database.update(BookContract.BookEntry.TABLE_NAME, values, selection, selectionArgs);
+
+        if (rowsUpdated != 0){
+            getContext().getContentResolver().notifyChange(uri,null);
+        }
+        return rowsUpdated;
     }
 
     /**
@@ -148,18 +157,26 @@ public class BookProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
+        int rowsDeleted;
         final int match = sUsiMatcher.match(uri);
         switch (match) {
             case BOOKS:
-                return database.delete(BookContract.BookEntry.TABLE_NAME, selection, selectionArgs);
+                
+                rowsDeleted = database.delete(BookContract.BookEntry.TABLE_NAME,selection,selectionArgs);
+                break;
             case BOOK_ID:
                 selection = BookContract.BookEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return database.delete(BookContract.BookEntry.TABLE_NAME, selection, selectionArgs);
+
+                rowsDeleted = database.delete(BookContract.BookEntry.TABLE_NAME,selection,selectionArgs);
+                break;
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
-
+        if (rowsDeleted != 0){
+            getContext().getContentResolver().notifyChange(uri,null);
+        }
+        return rowsDeleted;
     }
 
     /**

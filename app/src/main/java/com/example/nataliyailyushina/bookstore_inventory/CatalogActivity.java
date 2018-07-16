@@ -1,5 +1,8 @@
 package com.example.nataliyailyushina.bookstore_inventory;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,10 +22,13 @@ import com.example.nataliyailyushina.bookstore_inventory.data.BookDbHelper;
 
 import java.util.List;
 
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private BookDbHelper mDbHelper;
 
+    private static final int BOOK_LOADER = 0;
+
+    BookCursorAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +45,18 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
         // Find the ListView which will be populated with the pet data
-        ListView petListView = findViewById(R.id.list);
+        ListView bookListView = findViewById(R.id.list);
 
         // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
         View emptyView = findViewById(R.id.empty_view);
-        petListView.setEmptyView(emptyView);
+        bookListView.setEmptyView(emptyView);
+
+        mCursorAdapter = new BookCursorAdapter(this,null);
+        bookListView.setAdapter(mCursorAdapter);
+        getLoaderManager().initLoader(BOOK_LOADER,null,this);
     }
 
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        displayDatabaseInfo();
-    }
 
     private void insertbook() {
         ContentValues values = new ContentValues();
@@ -66,29 +70,7 @@ public class CatalogActivity extends AppCompatActivity {
 
     }
 
-    private void displayDatabaseInfo() {
 
-        String[] projection = {
-                BookEntry._ID,
-                BookEntry.COLUMN_BOOK_NAME,
-                BookEntry.COLUMN_BOOK_PRICE,
-                BookEntry.COLUMN_BOOK_QUANTITY,
-                BookEntry.COLUMN_SUPPLIER_NAME,
-                BookEntry.COLUMN_SUPPLIER_PHONE
-        };
-
-
-        Cursor cursor = getContentResolver().query(BookEntry.CONTENT_URI,
-                projection,
-                null,
-                null,
-                null);
-        // Perform this raw SQL query "SELECT * FROM pets"
-        // to get a Cursor that contains all rows from the pets table.
-        ListView bookListView = findViewById(R.id.list);
-        BookCursorAdapter adapter = new BookCursorAdapter(this, cursor);
-        bookListView.setAdapter(adapter);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -112,6 +94,33 @@ public class CatalogActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader onCreateLoader(int i, Bundle bundle) {
+       String[] projection = {
+               BookEntry._ID,
+               BookEntry.COLUMN_BOOK_NAME,
+               BookEntry.COLUMN_BOOK_PRICE,
+               BookEntry.COLUMN_BOOK_QUANTITY
+       };
+
+       return new CursorLoader(this,
+               BookEntry.CONTENT_URI,
+               projection,
+               null,
+               null,
+               null);
+    }
+
+      @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mCursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        mCursorAdapter.swapCursor(null);
     }
 }
 
