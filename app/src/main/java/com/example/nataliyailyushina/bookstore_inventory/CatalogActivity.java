@@ -1,6 +1,7 @@
 package com.example.nataliyailyushina.bookstore_inventory;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.database.Cursor;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.view.View;
@@ -53,6 +55,16 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         mCursorAdapter = new BookCursorAdapter(this,null);
         bookListView.setAdapter(mCursorAdapter);
+
+        bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent intent = new Intent(CatalogActivity.this, EditActivity.class);
+                Uri currentBookUri = ContentUris.withAppendedId(BookEntry.CONTENT_URI, id);
+                intent.setData(currentBookUri);
+                startActivity(intent);
+            }
+        });
         getLoaderManager().initLoader(BOOK_LOADER,null,this);
     }
 

@@ -1,5 +1,6 @@
 package com.example.nataliyailyushina.bookstore_inventory;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 
@@ -32,6 +33,16 @@ public class EditActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
+
+        Intent intent = getIntent();
+        Uri currentBookUri = intent.getData();
+
+        if (currentBookUri == null){
+            setTitle("Add a Book");
+        } else {
+            setTitle("Edit Book");
+        }
+
         mEditName = findViewById(R.id.edit_book_name);
         mEditPrice = findViewById(R.id.edit_book_price);
         mEditQuantity = findViewById(R.id.edit_book_quantity);

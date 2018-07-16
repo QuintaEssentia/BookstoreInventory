@@ -161,7 +161,7 @@ public class BookProvider extends ContentProvider {
         final int match = sUsiMatcher.match(uri);
         switch (match) {
             case BOOKS:
-                
+
                 rowsDeleted = database.delete(BookContract.BookEntry.TABLE_NAME,selection,selectionArgs);
                 break;
             case BOOK_ID:
