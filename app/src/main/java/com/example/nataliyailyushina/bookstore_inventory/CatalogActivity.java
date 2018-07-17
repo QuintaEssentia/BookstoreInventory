@@ -111,18 +111,18 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public Loader onCreateLoader(int i, Bundle bundle) {
        String[] projection = {
-               BookEntry._ID,
-               BookEntry.COLUMN_BOOK_NAME,
-               BookEntry.COLUMN_BOOK_PRICE,
-               BookEntry.COLUMN_BOOK_QUANTITY
-       };
+                BookEntry._ID,
+                BookEntry.COLUMN_BOOK_NAME,
+                BookEntry.COLUMN_BOOK_PRICE,
+                BookEntry.COLUMN_BOOK_QUANTITY
+        };
 
-       return new CursorLoader(this,
-               BookEntry.CONTENT_URI,
-               projection,
-               null,
-               null,
-               null);
+        return new CursorLoader(this,
+                BookEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null);
     }
 
       @Override

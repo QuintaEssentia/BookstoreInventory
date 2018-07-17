@@ -1,6 +1,10 @@
 package com.example.nataliyailyushina.bookstore_inventory;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 
@@ -21,13 +25,14 @@ import android.widget.Toast;
 import com.example.nataliyailyushina.bookstore_inventory.data.BookDbHelper;
 import com.example.nataliyailyushina.bookstore_inventory.data.BookContract.BookEntry;
 
-public class EditActivity extends AppCompatActivity {
-
+public class EditActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int EXISTING_BOOK_LOADER = 0;
     private EditText mEditName;
     private EditText mEditPrice;
     private EditText mEditQuantity;
     private EditText mEditSupName;
     private EditText mEditSupPhone;
+    private Uri mCurrentBookUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +40,22 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
 
         Intent intent = getIntent();
-        Uri currentBookUri = intent.getData();
+        mCurrentBookUri = intent.getData();
 
-        if (currentBookUri == null){
+        if (mCurrentBookUri == null) {
+            // This is a new pet, so change the app bar to say "Add a Pet"
             setTitle("Add a Book");
+
+            // Invalidate the options menu, so the "Delete" menu option can be hidden.
+            // (It doesn't make sense to delete a pet that hasn't been created yet.)
+            invalidateOptionsMenu();
         } else {
+            // Otherwise this is an existing pet, so change app bar to say "Edit Pet"
             setTitle("Edit Book");
+
+            // Initialize a loader to read the pet data from the database
+            // and display the current values in the editor
+            getLoaderManager().initLoader(EXISTING_BOOK_LOADER, null, this);
         }
 
         mEditName = findViewById(R.id.edit_book_name);
@@ -48,6 +63,8 @@ public class EditActivity extends AppCompatActivity {
         mEditQuantity = findViewById(R.id.edit_book_quantity);
         mEditSupName = findViewById(R.id.edit_supplier_name);
         mEditSupPhone = findViewById(R.id.edit_supplier_phone);
+
+        getLoaderManager().initLoader(EXISTING_BOOK_LOADER,null,this);
     }
 
     private void insertBook() {
@@ -58,24 +75,50 @@ public class EditActivity extends AppCompatActivity {
         String supNameString = mEditSupName.getText().toString().trim();
         String supPhoneString = mEditSupPhone.getText().toString().trim();
 
-        BookDbHelper mDbHelper = new BookDbHelper(this);
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        if (mCurrentBookUri == null &&
+                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
+                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supNameString) &&
+                TextUtils.isEmpty(supPhoneString)) {
+            // Since no fields were modified, we can return early without creating a new pet.
+            // No need to create ContentValues and no need to do any ContentProvider operations.
+            return;
+        }
 
         ContentValues values = new ContentValues();
 
         values.put(BookEntry.COLUMN_BOOK_NAME, nameString);
         values.put(BookEntry.COLUMN_BOOK_PRICE, priceString);
-        values.put(BookEntry.COLUMN_BOOK_QUANTITY, quantity);
         values.put(BookEntry.COLUMN_SUPPLIER_NAME, supNameString);
         values.put(BookEntry.COLUMN_SUPPLIER_PHONE, supPhoneString);
-        Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI, values);
 
-        if (newUri == null) {
-            // If the row ID is -1, then there was an error with insertion.
-            Toast.makeText(this, "Error with saving book", Toast.LENGTH_SHORT).show();
+        int bookquantity = 0;
+        if (!TextUtils.isEmpty(quantityString)) {
+            bookquantity = Integer.parseInt(quantityString);
+        }
+        values.put(BookEntry.COLUMN_BOOK_QUANTITY, bookquantity);
+
+        if (mCurrentBookUri == null) {
+            Uri newUri = getContentResolver().insert(BookEntry.CONTENT_URI, values);
+            if (newUri == null) {
+                // If the row ID is -1, then there was an error with insertion.
+                Toast.makeText(this, "Error with saving book", Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the insertion was successful and we can display a toast with the row ID.
+                Toast.makeText(this, "Book saved ", Toast.LENGTH_SHORT).show();
+            }
         } else {
-            // Otherwise, the insertion was successful and we can display a toast with the row ID.
-            Toast.makeText(this, "Book saved ", Toast.LENGTH_SHORT).show();
+            int rowsAffected = getContentResolver().update(mCurrentBookUri, values, null, null);
+
+            // Show a toast message depending on whether or not the update was successful.
+            if (rowsAffected == 0) {
+                // If no rows were affected, then there was an error with the update.
+                Toast.makeText(this, "Error with updating book",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the update was successful and we can display a toast.
+                Toast.makeText(this, "Book updated",
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -108,6 +151,63 @@ public class EditActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {
+                BookEntry._ID,
+                BookEntry.COLUMN_BOOK_NAME,
+                BookEntry.COLUMN_BOOK_PRICE,
+                BookEntry.COLUMN_BOOK_QUANTITY,
+                BookEntry.COLUMN_SUPPLIER_NAME,
+                BookEntry.COLUMN_SUPPLIER_PHONE
+        };
+
+        return new CursorLoader(this,
+                mCurrentBookUri,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor == null || cursor.getCount() < 1) {
+            return;
+        }
+        if (cursor.moveToFirst()) {
+            // Find the columns of pet attributes that we're interested in
+            int nameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_BOOK_NAME);
+            int priceColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_BOOK_PRICE);
+            int quantityColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_BOOK_QUANTITY);
+            int supnameColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_NAME);
+            int supPhoneColumnIndex = cursor.getColumnIndex(BookEntry.COLUMN_SUPPLIER_PHONE);
+
+            // Extract out the value from the Cursor for the given column index
+            String name = cursor.getString(nameColumnIndex);
+            String price = cursor.getString(priceColumnIndex);
+            int quantity = cursor.getInt(quantityColumnIndex);
+            String supName = cursor.getString(supnameColumnIndex);
+            String supPhone = cursor.getString(supPhoneColumnIndex);
+
+            // Update the views on the screen with the values from the database
+            mEditName.setText(name);
+            mEditPrice.setText(price);
+            mEditQuantity.setText(Integer.toString(quantity));
+            mEditSupName.setText(supName);
+            mEditSupPhone.setText(supPhone);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+    mEditName.setText("");
+    mEditPrice.setText("");
+    mEditQuantity.setText("");
+    mEditSupName.setText("");
+    mEditSupPhone.setText("");
     }
 }
 
