@@ -64,7 +64,7 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         mEditSupName = findViewById(R.id.edit_supplier_name);
         mEditSupPhone = findViewById(R.id.edit_supplier_phone);
 
-        getLoaderManager().initLoader(EXISTING_BOOK_LOADER,null,this);
+       // getLoaderManager().initLoader(EXISTING_BOOK_LOADER,null,this);
     }
 
     private void insertBook() {
