@@ -64,4 +64,14 @@
     <!-- Dialog button text for the option to cancel deletion of the current pet [CHAR LIMIT=20] -->
     <string name="cancel">Cancel</string>
 
+    <string name="sale">Sale</string>
+
+    <string name="quantity_less_than_zero">Quantity cannot be less than 0</string>
+
+    <string name="adj_less_than_one">Adjustment cannot be less than 1</string>
+
+    <string name="invalid_phone_number">Cannot call empty or invalid number</string>
+    <string name="item_sold">Item Sold</string>
+    <string name="item_not_sold">Item Not Sold</string>
+
 </resources>

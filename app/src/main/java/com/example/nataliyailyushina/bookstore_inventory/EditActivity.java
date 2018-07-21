@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.content.ContentValues;
@@ -35,6 +36,7 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     private EditText mEditQuantity;
     private EditText mEditSupName;
     private EditText mEditSupPhone;
+    private EditText quantityAdj;
     private Uri mCurrentBookUri;
     private boolean mBookHasChanged = false;
 
@@ -84,6 +86,75 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         mEditQuantity.setOnTouchListener(mTouchListener);
         mEditSupName.setOnTouchListener(mTouchListener);
         mEditSupPhone.setOnTouchListener(mTouchListener);
+        Button callSupplierButton = findViewById(R.id.call_supplier);
+        callSupplierButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strSupplierPhone = mEditSupPhone.getText().toString().trim();
+                if (strSupplierPhone == null || TextUtils.isEmpty(strSupplierPhone)) {
+                    Toast.makeText(getApplicationContext(), R.string.invalid_phone_number, Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    String uri = "tel:" + strSupplierPhone;
+                    intent.setData(Uri.parse(uri));
+                    startActivity(intent);
+                }
+            }
+        });
+        //Get the adjustment factor for the quantity in EditorActivity
+        quantityAdj = findViewById(R.id.edit_book_quantity);
+
+        //Get the increase and decrease button and use the adjustment factor to increase
+        //or decrease quantity accordingly
+        Button qtyDecreaseBtn = findViewById(R.id.editor_quantity_button_decrease);
+        Button qtyIncreaseBtn = findViewById(R.id.editor_quantity_button_increase);
+
+        //Set click listener on the decrease button and decrease the quantity
+        //according the adjustment factor, check for validation before changing data
+        qtyDecreaseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strCurrentQty = mEditQuantity.getText().toString().trim();
+                if (!TextUtils.isEmpty(strCurrentQty)) {
+                    int currentQty = Integer.parseInt(strCurrentQty);
+
+                        if (currentQty > 0) {
+                            currentQty = currentQty - 1;
+                            if (currentQty >= 0) {
+                                mEditQuantity.setText(String.valueOf(currentQty));
+                                mBookHasChanged = true;
+                            } else {
+                                Toast.makeText(getApplicationContext(), R.string.quantity_less_than_zero, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        }
+                    }
+
+            }
+
+        });
+
+        //Set click listener on the increase button and increase the quantity
+        //according the adjustment factor, check for validation before changing data
+        qtyIncreaseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strCurrentQty = mEditQuantity.getText().toString();
+                int adjustmentFactor = Integer.parseInt(mEditQuantity.getText().toString().trim());
+                int currentQty = Integer.parseInt(strCurrentQty);
+                    mBookHasChanged = true;
+                    if (!TextUtils.isEmpty(strCurrentQty)) {
+                        currentQty = Integer.parseInt(strCurrentQty);
+                        currentQty = currentQty + 1;
+                        mEditQuantity.setText(String.valueOf(currentQty));
+                    } else {
+                        currentQty = currentQty + 1;
+                        ;
+                        mEditQuantity.setText(String.valueOf(currentQty));
+                    }
+
+            }
+        });
     }
 
     private void insertBook() {
