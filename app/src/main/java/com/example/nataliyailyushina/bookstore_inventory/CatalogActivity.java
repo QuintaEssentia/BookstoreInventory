@@ -73,6 +73,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     private void insertbook() {
         ContentValues values = new ContentValues();
+        values.put(BookEntry._ID,"999");
         values.put(BookEntry.COLUMN_BOOK_NAME, "The Lord of the Rings");
         values.put(BookEntry.COLUMN_BOOK_PRICE, "30$");
         values.put(BookEntry.COLUMN_BOOK_QUANTITY, 3);
